@@ -1,4 +1,4 @@
-# Group_I_Project-
+# Project Name
 This Repos will serve as Infrastructure for the project
 Steps to contribute
 
