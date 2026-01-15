@@ -1,0 +1,21 @@
+
+digraph Flow {
+  rankdir=TB; // Top to Bottom
+  node [shape=rectangle, fontname="Segoe UI"];
+
+  Start [label="Start", shape=oval];
+  Input [label="Get user input"];
+  Decision [label="Is input valid?", shape=diamond];
+  Process [label="Process data"];
+  Error [label="Show error & retry"];
+  End [label="End", shape=oval];
+
+  Start -> Input -> Decision;
+  Decision -> Process [label="Yes"];
+  Decision -> Error [label="No"];
+  Error -> Input;
+  Process -> End;
+
+  // Aesthetics
+  edge [fontname="Cambria" fontsize=20];
+}

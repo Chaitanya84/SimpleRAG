@@ -1,0 +1,121 @@
+
+digraph KNN_Flow {
+  rankdir=TB;
+  fontsize=12;
+  labelloc="t";
+  label="K-Nearest Neighbors (KNN) — Training & Prediction Flow (Downstream)";
+
+  node [shape=rectangle, style=rounded, fontsize=11];
+
+  /* ===== Legend ===== */
+  subgraph cluster_legend {
+    label="Legend";
+    fontsize=10;
+    style=dashed;
+    color=gray60;
+    key1 [label="Process", shape=rectangle, style="rounded,filled", fillcolor="#E8F1FA"];
+    key2 [label="Decision", shape=diamond, style="rounded,filled", fillcolor="#FFF6E5"];
+    key3 [label="Data Store", shape=cylinder, style="filled", fillcolor="#EAF7EA"];
+  }
+
+  /* ===== Start & Inputs ===== */
+  Start [label="Start", shape=circle, style="filled", fillcolor="#DDEBFB"];
+
+  X_train [label="X_train (features)", shape=cylinder, fillcolor="#EAF7EA", style=filled];
+  y_train [label="y_train (labels/targets)", shape=cylinder, fillcolor="#EAF7EA", style=filled];
+  X_test  [label="X_test (query/new samples)", shape=cylinder, fillcolor="#EAF7EA", style=filled];
+
+  /* Group inputs in same rank for neatness */
+  {rank=same; X_train; y_train; X_test;}
+
+  /* ===== Hyperparameters ===== */
+  Params [label=<
+    <b>Hyperparameters</b><br align="left"/>
+    • k (neighbors)<br align="left"/>
+    • distance metric (Euclidean / Manhattan / Minkowski / cosine / etc.)<br align="left"/>
+    • weighting (uniform / distance)<br align="left"/>
+    • tie-breaking (classification)<br align="left"/>
+    • normalization/scaling choice
+  >, shape=note];
+
+  /* ===== Preprocessing ===== */
+  Preprocess [label="Optional preprocessing:\n• Handle missing values\n• Feature scaling/normalization\n• Encode categorical vars", style="rounded,filled", fillcolor="#E8F1FA"];
+
+  /* ===== Training (Fit) ===== */
+  subgraph cluster_fit {
+    label="Training (fit)";
+    style=dashed;
+    color=gray60;
+
+    FitDesc [label="KNN 'Training' = Store training data\n(no parameter fitting)", style="rounded,filled", fillcolor="#E8F1FA"];
+    StoreData [label="Store:\n• X_train\n• y_train\n• Params", shape=cylinder, style=filled, fillcolor="#EAF7EA"];
+  }
+
+  /* ===== Prediction (Infer) ===== */
+  subgraph cluster_predict {
+    label="Prediction (infer)";
+    style=dashed;
+    color=gray60;
+
+    ForEach [label="For each sample x in X_test:", style="rounded,filled", fillcolor="#E8F1FA"];
+    DistComp [label="Compute distance(x, each X_train[i])\nusing chosen metric", style="rounded,filled", fillcolor="#E8F1FA"];
+    RankNeighbors [label="Rank by distance & select k nearest", style="rounded,filled", fillcolor="#E8F1FA"];
+    Weighting [label="Optional: apply weights\n(e.g., 1 / distance)", style="rounded,filled", fillcolor="#E8F1FA"];
+    DecisionTask [label="Task type?", shape=diamond, style="rounded,filled", fillcolor="#FFF6E5"];
+
+    /* Classification Branch */
+    ClassAgg [label="Classification aggregation:\n• Majority vote (weighted/unweighted)\n• Tie-break rule", style="rounded,filled", fillcolor="#E8F1FA"];
+    ClassOut [label="Predicted class ŷ", shape=rectangle, style="rounded,filled", fillcolor="#E8F1FA"];
+
+    /* Regression Branch */
+    RegrAgg [label="Regression aggregation:\n• Mean/median of neighbor targets\n• Weighted average", style="rounded,filled", fillcolor="#E8F1FA"];
+    RegrOut [label="Predicted value ŷ", shape=rectangle, style="rounded,filled", fillcolor="#E8F1FA"];
+
+    /* Optional Evaluation */
+    EvalDecision [label="Ground truth available?", shape=diamond, style="rounded,filled", fillcolor="#FFF6E5"];
+    ClassMetrics [label="Evaluate (classification):\n• Accuracy, Precision/Recall, F1, ROC-AUC", style="rounded,filled", fillcolor="#E8F1FA"];
+    RegrMetrics [label="Evaluate (regression):\n• MAE, MSE/RMSE, R²", style="rounded,filled", fillcolor="#E8F1FA"];
+  }
+
+  End [label="End", shape=doublecircle, style="filled", fillcolor="#DDEBFB"];
+
+  /* ===== Edges (Top-to-Bottom flow) ===== */
+  Start -> Params;
+
+  /* Inputs join into preprocessing */
+  X_train -> Preprocess;
+  y_train -> Preprocess;
+  X_test  -> Preprocess;
+
+  Params -> Preprocess;
+
+  /* Fit path */
+  Preprocess -> FitDesc;
+  FitDesc -> StoreData;
+
+  /* Predict path */
+  Preprocess -> ForEach;
+  ForEach -> DistComp;
+  DistComp -> RankNeighbors;
+  RankNeighbors -> Weighting;
+  Weighting -> DecisionTask;
+
+  DecisionTask -> ClassAgg [label="classification"];
+  DecisionTask -> RegrAgg  [label="regression"];
+
+  ClassAgg -> ClassOut;
+  RegrAgg  -> RegrOut;
+
+  /* Evaluation branching */
+  ClassOut -> EvalDecision;
+  RegrOut  -> EvalDecision;
+
+  EvalDecision -> ClassMetrics [label="classification"];
+  EvalDecision -> RegrMetrics  [label="regression"];
+
+  ClassMetrics -> End;
+  RegrMetrics  -> End;
+
+  /* Direct end if no ground truth */
+  EvalDecision -> End [label="no"];
+}
