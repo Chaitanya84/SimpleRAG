@@ -1,7 +1,7 @@
 
 digraph Flow {
   rankdir=TB; // Top to Bottom
-  node [shape=rectangle, fontname="Segoe UI"];
+  node [shape=rectangle, fontname="Cambria"];
 
   Start [label="Start", shape=oval];
   Input [label="Get user input"];
