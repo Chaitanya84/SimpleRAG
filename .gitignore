@@ -1,0 +1,20 @@
+# Project root ignores (explicit files/folders marked "ignore")
+# RAG_Implementation
+RAG_Implementation/00-simple-local-rag.ipynb
+RAG_Implementation/Exercise/
+RAG_Implementation/MahaBharata.pt
+RAG_Implementation/MahaBharata_df.csv
+RAG_Implementation/Mahabharata.pdf
+RAG_Implementation/human-nutrition-text.pdf
+RAG_Implementation/human_nutritiMahaBharataon_text_pages.csv
+RAG_Implementation/human_nutrition_text_pages.csv
+RAG_Implementation/matched_page.png
+RAG_Implementation/text_chunks_and_embeddings_df_NEW.csv
+RAG_Implementation/text_chunks_and_embeddings_embeddings_NEW.pt
+RAG_Implementation/venv/
+
+# Optional: common sensible ignores (kept minimal)
+*.pyc
+__pycache__/
+.env
+.DS_Store
